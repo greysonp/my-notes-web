@@ -153,7 +153,12 @@ this.main = this.main || {};
       'fileId': file.id,
       'alt': 'media'
     }).then(function(response) {
-      _$editor.val(response.body);
+      // Need to read in the text as UTF-8, as default encoding for text/* mimeTypes is iso-8859-1
+      // For explaination on how this works, see http://ecmanaut.blogspot.co.uk/2006/07/encoding-decoding-utf8-in-javascript.html
+      var body = decodeURIComponent(escape(response.body));
+      _$editor.val(body);
+      _oldEditorValue = body;
+
       loadEditor();
     }, function(reason) {
       alert(reason);
