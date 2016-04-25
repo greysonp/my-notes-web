@@ -1,19 +1,27 @@
 <html>
   <head>
-    <script type="text/javascript" src="js/main.js"></script>
-    <script src="https://apis.google.com/js/client.js?onload=checkAuth"></script>
     <script src="libs/jquery/dist/jquery.min.js"></script>
+    <script src="libs/simplemde/dist/simplemde.min.js"></script>
+    <script type="text/javascript" src="js/main.js"></script>
+
+    <script src="https://apis.google.com/js/client.js?onload=checkAuth"></script>
 
     <link rel="stylesheet" href="/css/main.css" media="screen" title="no title" charset="utf-8">
+    <link rel="stylesheet" href="/libs/simplemde/dist/simplemde.min.css" media="screen" title="no title" charset="utf-8">
   </head>
   <body>
     <div id="authorize-div" style="display: none">
       <span>Authorize access to Drive API</span>
       <!--Button for the user to click to initiate auth sequence -->
-      <button id="authorize-button" onclick="handleAuthClick(event)">
+      <button id="authorize-button" onclick="main.handleAuthClick(event)">
         Authorize
       </button>
     </div>
-    <div id="file-tree"></div>
+    <div id="container">
+      <div id="file-tree"></div>
+      <div id="editor-container">
+        <textarea id="editor"></textarea>
+      </div>
+    </div>
   </body>
 </html>

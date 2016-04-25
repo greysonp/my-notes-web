@@ -16,5 +16,8 @@
     "libs",
     "test",
     "tests"
-  ]
+  ],
+  "dependencies": {
+    "simplemde": "^1.10.1"
+  }
 }
