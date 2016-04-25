@@ -18,6 +18,7 @@
     "tests"
   ],
   "dependencies": {
-    "simplemde": "^1.10.1"
+    "simplemde": "^1.10.1",
+    "jquery": "^2.2.3"
   }
 }
