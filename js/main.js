@@ -124,7 +124,14 @@ this.main = this.main || {};
       if (file.mimeType == MIMETYPE_FOLDER) {
         div.addClass('folder')
         div.click(function() {
-          listFiles(_files[$(this).data('id')]);
+          var folder = _files[$(this).data('id')];
+          if (Object.keys(folder.children).length == 0) {
+            listFiles(folder);
+          } else {
+            folder.children = {};
+            $('#file-tree').empty();
+            renderFiles(_rootFile, 0);
+          }
         });
       } else {
         div.click(function() {
