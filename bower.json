@@ -19,6 +19,7 @@
   ],
   "dependencies": {
     "simplemde": "^1.10.1",
-    "jquery": "^2.2.3"
+    "jquery": "^2.2.3",
+    "jstree": "^3.3.0"
   }
 }

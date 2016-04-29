@@ -1,15 +1,6 @@
 this.main = this.main || {};
 
 (function(exports) {
-  // Your Client ID can be retrieved from your project in the Google
-  // Developer Console, https://console.developers.google.com
-  var CLIENT_ID = '1087423722494-rcd7j3q163q3ov0mqpqou43mles7sr4j.apps.googleusercontent.com';
-
-  var SCOPES = ['https://www.googleapis.com/auth/drive'];
-
-  var MIMETYPE_FOLDER = 'application/vnd.google-apps.folder';
-  var MIMETYPE_MARKDOWN = 'text/x-markdown';
-  var MIMETYPE_TEXT = 'text/plain';
 
   var SAVE_INTERVAL_MS = 5000;
 
@@ -20,7 +11,6 @@ this.main = this.main || {};
   var _$editor = null;
   var _$editorContainer = null;
   var _saveTimerId = 0;
-  var _accessToken = null;
   var _oldEditorValue = null;
 
   $(document).ready(init);
@@ -33,135 +23,91 @@ this.main = this.main || {};
   }
 
   function checkAuth() {
-    gapi.auth.authorize(
-      {
-        'client_id': CLIENT_ID,
-        'scope': SCOPES.join(' '),
-        'immediate': true
-      }, handleAuthResult);
-  }
-
-  function handleAuthResult(authResult) {
-    _accessToken = authResult.access_token;
-
-    var authorizeDiv = document.getElementById('authorize-div');
-    if (authResult && !authResult.error) {
-      // Hide auth UI, then load client library.
-      authorizeDiv.style.display = 'none';
-      loadDriveApi();
-    } else {
-      // Show auth UI, allowing the user to initiate authorization by
-      // clicking authorize button.
-      authorizeDiv.style.display = 'inline';
-    }
+    gdrive.checkAuth(function(err, result) {
+      var authorizeDiv = document.getElementById('authorize-div');
+      if (!err && result) {
+        // Hide auth UI, then load client library.
+        authorizeDiv.style.display = 'none';
+        gdrive.loadApi(initFileTree);
+      } else {
+        // Show auth UI, allowing the user to initiate authorization by
+        // clicking authorize button.
+        authorizeDiv.style.display = 'inline';
+      }
+    });
   }
 
   function handleAuthClick(event) {
-    gapi.auth.authorize(
-      {client_id: CLIENT_ID, scope: SCOPES, immediate: false},
-      handleAuthResult);
+    checkAuth();
     return false;
   }
 
-  function loadDriveApi() {
-    gapi.client.load('drive', 'v3', getRootFile);
+  function initFileTree() {
+    // Setup jstree to query gdrive
+    $('#file-tree').jstree({
+      core: {
+        data: function(node, cb) {
+          if (node.id == '#') {
+            gdrive.getFileMetadata('root', function(response) {
+              _rootFile = response;
+              _rootFile.state = {
+                opened: true
+              }
+              addToFiles(_rootFile);
+              listFiles(_rootFile, cb);
+            });
+          } else {
+            listFiles(_files[node.id], cb);
+          }
+        }
+      }
+    });
+
+    // Add event to handle opening of files
+    $('#file-tree').on('select_node.jstree', function (e, data) {
+      var file = _files[data.node.id];
+      if (file.mimeType != gdrive.MIMETYPE_FOLDER) {
+        _activeFile = file;
+        showFile(file);
+      }
+    });
   }
 
-  function getRootFile() {
-    var request = gapi.client.drive.files.get({
-      'fileId': 'root',
-      'fields': 'id, name, mimeType'
-    });
-
-    request.execute(function(resp) {
-      _rootFile = resp;
-      _rootFile.children = {};
-      addToFiles(_rootFile);
-      listFiles(_rootFile);
-    });
-  }
-
-  function listFiles(rootfile) {
-    var request = gapi.client.drive.files.list({
-      'corpus': 'user',
-      'orderBy': 'folder,name',
-      'q': "'" + rootfile.id + "' in parents and trashed=false and (mimeType='" + MIMETYPE_FOLDER + "' or mimeType='" + MIMETYPE_MARKDOWN + "' or mimeType='" + MIMETYPE_TEXT + "')",
-      'fields': "nextPageToken, files(id, name, mimeType)",
-      'pageSize': 100
-    });
-
-    request.execute(function(resp) {
+  function listFiles(rootfile, callback) {
+    gdrive.listFiles(rootfile, function(resp) {
       var files = resp.files;
       if (files && files.length > 0) {
-        var children = {};
         for (var i = 0; i < files.length; i++) {
           var file = files[i];
-          children[file.id] = file;
-          file.children = {};
+          file.children = (file.mimeType == gdrive.MIMETYPE_FOLDER);
+          if (file.mimeType != gdrive.MIMETYPE_FOLDER) {
+            file.icon = 'jstree-file';
+          }
           addToFiles(file);
         }
-        rootfile.children = children;
+        rootfile.children = files;
       }
-      $('#file-tree').empty();
-      renderFiles(_rootFile, 0);
+      if (callback) {
+        callback(rootfile);
+      }
     });
   }
 
   function addToFiles(file) {
+    file.text = file.name;
     _files[file.id] = file;
-  }
-
-  function renderFiles(rootfile, indent) {
-    var files = rootfile.children;
-    var keys = Object.keys(files);
-    for (var i = 0; i < keys.length; i++) {
-      var file = files[keys[i]];
-      var div = $('<div></div>')
-        .data('id', file.id)
-        .text(file.name)
-        .css('padding-left', (15 * indent) + 'px');
-
-      if (file.mimeType == MIMETYPE_FOLDER) {
-        div.addClass('folder')
-        div.click(function() {
-          var folder = _files[$(this).data('id')];
-          if (Object.keys(folder.children).length == 0) {
-            listFiles(folder);
-          } else {
-            folder.children = {};
-            $('#file-tree').empty();
-            renderFiles(_rootFile, 0);
-          }
-        });
-      } else {
-        div.click(function() {
-          _activeFile = _files[$(this).data('id')];
-          showFile(_activeFile);
-        });
-      }
-      $('#file-tree').append(div);
-      if (Object.keys(file.children).length > 0) {
-        renderFiles(file, indent + 1);
-      }
-    }
   }
 
   function showFile(file) {
     console.log(file);
     clearInterval(_saveTimerId);
-    var request = gapi.client.drive.files.get({
-      'fileId': file.id,
-      'alt': 'media'
-    }).then(function(response) {
-      // Need to read in the text as UTF-8, as default encoding for text/* mimeTypes is iso-8859-1
-      // For explaination on how this works, see http://ecmanaut.blogspot.co.uk/2006/07/encoding-decoding-utf8-in-javascript.html
-      var body = decodeURIComponent(escape(response.body));
+    gdrive.getFileContents(file, function(body) {
       _$editor.val(body);
       _oldEditorValue = body;
-
       loadEditor();
     }, function(reason) {
-      alert(reason);
+      console.error(reason);
+      alert('Error showing file, check console.');
     });
   }
 
@@ -184,21 +130,10 @@ this.main = this.main || {};
     if (contents == _oldEditorValue) return;
     _oldEditorValue = contents;
 
-    $.ajax({
-      url: 'https://www.googleapis.com/upload/drive/v3/files/' + file.id + '?uploadType=media',
-      type: 'PATCH',
-      contentType: MIMETYPE_MARKDOWN,
-      data: contents,
-      headers: {
-        'Authorization': 'Bearer ' + _accessToken
-      },
-      success: function(data) {
-        console.log('success!');
-        console.log(data);
-      },
-      error: function() {
-        alert('Error saving file.');
-      }
+    gdrive.saveFile(file, contents, function(data) {
+      console.log('Saved file.');
+    }, function() {
+      alert('Error saving file.');
     });
   }
 
