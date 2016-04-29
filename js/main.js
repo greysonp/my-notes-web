@@ -113,6 +113,7 @@ this.main = this.main || {};
 
   function loadEditor() {
     $('#editor-container *').not('#editor').remove();
+    _$editorContainer.show();
     _simplemde = new SimpleMDE({
       element: document.getElementById('editor'),
       spellChecker: false,
@@ -120,7 +121,6 @@ this.main = this.main || {};
       indentWithTabs: false,
       autofocus: true
     });
-    _$editorContainer.show();
     _saveTimerId = setInterval(function() {
       saveFile(_activeFile, _$editor.val());
     }, SAVE_INTERVAL_MS);
