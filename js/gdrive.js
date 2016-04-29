@@ -55,6 +55,15 @@ this.gdrive = this.gdrive || {};
     });
   }
 
+  function getFileMetadata(fileId, callback) {
+    var request = gapi.client.drive.files.get({
+      fileId: fileId,
+      fields: 'id, name, mimeType'
+    });
+
+    request.execute(callback);
+  }
+
   function getFileContents(file, onSuccess, onFailure) {
     var request = gapi.client.drive.files.get({
       'fileId': file.id,
@@ -71,6 +80,7 @@ this.gdrive = this.gdrive || {};
   exports.loadApi = loadApi;
   exports.listFiles = listFiles;
   exports.saveFile = saveFile;
+  exports.getFileMetadata = getFileMetadata;
   exports.getFileContents = getFileContents;
   exports.MIMETYPE_FOLDER = MIMETYPE_FOLDER;
   exports.MIMETYPE_MARKDOWN = MIMETYPE_MARKDOWN;

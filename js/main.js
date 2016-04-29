@@ -28,7 +28,7 @@ this.main = this.main || {};
       if (!err && result) {
         // Hide auth UI, then load client library.
         authorizeDiv.style.display = 'none';
-        gdrive.loadApi(getRootFile);
+        gdrive.loadApi(initFileTree);
       } else {
         // Show auth UI, allowing the user to initiate authorization by
         // clicking authorize button.
@@ -42,75 +42,60 @@ this.main = this.main || {};
     return false;
   }
 
-  function getRootFile() {
-    var request = gapi.client.drive.files.get({
-      'fileId': 'root',
-      'fields': 'id, name, mimeType'
+  function initFileTree() {
+    // Setup jstree to query gdrive
+    $('#file-tree').jstree({
+      core: {
+        data: function(node, cb) {
+          if (node.id == '#') {
+            gdrive.getFileMetadata('root', function(response) {
+              _rootFile = response;
+              _rootFile.state = {
+                opened: true
+              }
+              addToFiles(_rootFile);
+              listFiles(_rootFile, cb);
+            });
+          } else {
+            listFiles(_files[node.id], cb);
+          }
+        }
+      }
     });
 
-    request.execute(function(resp) {
-      _rootFile = resp;
-      _rootFile.children = {};
-      addToFiles(_rootFile);
-      listFiles(_rootFile);
+    // Add event to handle opening of files
+    $('#file-tree').on('select_node.jstree', function (e, data) {
+      var file = _files[data.node.id];
+      if (file.mimeType != gdrive.MIMETYPE_FOLDER) {
+        _activeFile = file;
+        showFile(file);
+      }
     });
   }
 
-  function listFiles(rootfile) {
+  function listFiles(rootfile, callback) {
     gdrive.listFiles(rootfile, function(resp) {
       var files = resp.files;
       if (files && files.length > 0) {
-        var children = {};
         for (var i = 0; i < files.length; i++) {
           var file = files[i];
-          children[file.id] = file;
-          file.children = {};
+          file.children = (file.mimeType == gdrive.MIMETYPE_FOLDER);
+          if (file.mimeType != gdrive.MIMETYPE_FOLDER) {
+            file.icon = 'jstree-file';
+          }
           addToFiles(file);
         }
-        rootfile.children = children;
+        rootfile.children = files;
       }
-      $('#file-tree').empty();
-      renderFiles(_rootFile, 0);
-    })
+      if (callback) {
+        callback(rootfile);
+      }
+    });
   }
 
   function addToFiles(file) {
+    file.text = file.name;
     _files[file.id] = file;
-  }
-
-  function renderFiles(rootfile, indent) {
-    var files = rootfile.children;
-    var keys = Object.keys(files);
-    for (var i = 0; i < keys.length; i++) {
-      var file = files[keys[i]];
-      var div = $('<div></div>')
-        .data('id', file.id)
-        .text(file.name)
-        .css('padding-left', (15 * indent) + 'px');
-
-      if (file.mimeType == gdrive.MIMETYPE_FOLDER) {
-        div.addClass('folder')
-        div.click(function() {
-          var folder = _files[$(this).data('id')];
-          if (Object.keys(folder.children).length == 0) {
-            listFiles(folder);
-          } else {
-            folder.children = {};
-            $('#file-tree').empty();
-            renderFiles(_rootFile, 0);
-          }
-        });
-      } else {
-        div.click(function() {
-          _activeFile = _files[$(this).data('id')];
-          showFile(_activeFile);
-        });
-      }
-      $('#file-tree').append(div);
-      if (Object.keys(file.children).length > 0) {
-        renderFiles(file, indent + 1);
-      }
-    }
   }
 
   function showFile(file) {
@@ -119,10 +104,10 @@ this.main = this.main || {};
     gdrive.getFileContents(file, function(body) {
       _$editor.val(body);
       _oldEditorValue = body;
-
       loadEditor();
     }, function(reason) {
-      alert(reason);
+      console.error(reason);
+      alert('Error showing file, check console.');
     });
   }
 
@@ -144,9 +129,9 @@ this.main = this.main || {};
   function saveFile(file, contents) {
     if (contents == _oldEditorValue) return;
     _oldEditorValue = contents;
+
     gdrive.saveFile(file, contents, function(data) {
-      console.log('success!');
-      console.log(data);
+      console.log('Saved file.');
     }, function() {
       alert('Error saving file.');
     });
