@@ -7,3 +7,4 @@ git add -A
 git commit -m "Deploy"
 git push origin gh-pages
 git checkout master
+bower install
