@@ -59,20 +59,30 @@ this.gdrive = this.gdrive || {};
     var request = gapi.client.drive.files.get({
       fileId: fileId,
       fields: 'id, name, mimeType'
-    });
-
-    request.execute(callback);
+    }).execute(callback);
   }
 
   function getFileContents(file, onSuccess, onFailure) {
     var request = gapi.client.drive.files.get({
-      'fileId': file.id,
-      'alt': 'media'
+      fileId: file.id,
+      alt: 'media'
     }).then(function(response) {
       // Need to read in the text as UTF-8, as default encoding for text/* mimeTypes is iso-8859-1
       // For explaination on how this works, see http://ecmanaut.blogspot.co.uk/2006/07/encoding-decoding-utf8-in-javascript.html
       onSuccess(decodeURIComponent(escape(response.body)));
     }, onFailure);
+  }
+
+  function createFile(name, parent, callback) {
+    gapi.client.drive.files.create({
+        name: name,
+        parents: [parent.id],
+        mimeType: MIMETYPE_MARKDOWN,
+        fields: 'id, name, mimeType',
+        useContentAsIndexableText: true
+    }).execute(function(file) {
+      callback(file.result);
+    });
   }
 
   // Defining exports
@@ -82,6 +92,7 @@ this.gdrive = this.gdrive || {};
   exports.saveFile = saveFile;
   exports.getFileMetadata = getFileMetadata;
   exports.getFileContents = getFileContents;
+  exports.createFile = createFile;
   exports.MIMETYPE_FOLDER = MIMETYPE_FOLDER;
   exports.MIMETYPE_MARKDOWN = MIMETYPE_MARKDOWN;
   exports.MIMETYPE_TEXT = MIMETYPE_TEXT;

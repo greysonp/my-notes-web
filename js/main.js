@@ -190,12 +190,20 @@ this.main = this.main || {};
     });
   }
 
-  function onCreateFileClick(file) {
-    console.log(file);
+  function onCreateFileClick(parent) {
+    console.log(parent);
+    var name = prompt('New file name') + '.md';
+    gdrive.createFile(name, parent, function(file) {
+      resetFileTree();
+    });
   }
 
   function onSetRootFolderClick(file) {
     localStorage.setItem(KEY_ROOT_ID, file.id);
+    resetFileTree();
+  }
+
+  function resetFileTree() {
     $('#file-tree').jstree('destroy');
     initFileTree();
   }
