@@ -66,20 +66,45 @@ this.main = this.main || {};
       contextmenu: {
         items: function(node, cb) {
           var file = _files[node.id];
+
+          // Construct the menu items. They must be added in the order we want them to appear, which is why we can't
+          // group all of the folder ones together, for instance.
           var items = {};
           if (file.mimeType == gdrive.MIMETYPE_FOLDER) {
-            items = {
-              create: {
-                label: 'New Note',
-                action: function() {
-                  onCreateFileClick(file);
-                }
+            items.create = {
+              label: 'New Note',
+              action: function() {
+                onCreateFileClick(file);
+              }
+            };
+            items.createDir = {
+              label: 'New Folder',
+              action: function() {
+                alert('Coming soon.');
               },
-              setRoot: {
-                label: 'Set as Root Folder',
-                action: function() {
-                  onSetRootFolderClick(file);
-                }
+              _disabled: true
+            };
+          }
+          items.rename = {
+            label: 'Rename',
+            action: function() {
+              alert('Coming soon.');
+            },
+            _disabled: true
+          };
+          items.delete = {
+            label: 'Delete',
+            action: function() {
+              alert('Coming soon.');
+            },
+            _disabled: true
+          };
+          if (file.mimeType == gdrive.MIMETYPE_FOLDER) {
+            items.setRoot = {
+              label: 'Set as Root Folder',
+              separator_before: true,
+              action: function() {
+                onSetRootFolderClick(file);
               }
             }
           }
@@ -165,12 +190,20 @@ this.main = this.main || {};
     });
   }
 
-  function onCreateFileClick(file) {
-    console.log(file);
+  function onCreateFileClick(parent) {
+    console.log(parent);
+    var name = prompt('New file name') + '.md';
+    gdrive.createFile(name, parent, function(file) {
+      resetFileTree();
+    });
   }
 
   function onSetRootFolderClick(file) {
     localStorage.setItem(KEY_ROOT_ID, file.id);
+    resetFileTree();
+  }
+
+  function resetFileTree() {
     $('#file-tree').jstree('destroy');
     initFileTree();
   }
