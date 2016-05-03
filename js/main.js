@@ -3,6 +3,7 @@ this.main = this.main || {};
 (function(exports) {
 
   var SAVE_INTERVAL_MS = 5000;
+  var KEY_ROOT_ID = 'my-notes';
 
   var _rootFile = null;
   var _files = {};
@@ -48,7 +49,8 @@ this.main = this.main || {};
       core: {
         data: function(node, cb) {
           if (node.id == '#') {
-            gdrive.getFileMetadata('root', function(response) {
+            var storedRoot = localStorage.getItem(KEY_ROOT_ID);
+            gdrive.getFileMetadata(storedRoot != null ? storedRoot : 'root', function(response) {
               _rootFile = response;
               _rootFile.state = {
                 opened: true
@@ -60,7 +62,33 @@ this.main = this.main || {};
             listFiles(_files[node.id], cb);
           }
         }
-      }
+      },
+      contextmenu: {
+        items: function(node, cb) {
+          var file = _files[node.id];
+          var items = {};
+          if (file.mimeType == gdrive.MIMETYPE_FOLDER) {
+            items = {
+              create: {
+                label: 'New Note',
+                action: function() {
+                  onCreateFileClick(file);
+                }
+              },
+              setRoot: {
+                label: 'Set as Root Folder',
+                action: function() {
+                  onSetRootFolderClick(file);
+                }
+              }
+            }
+          }
+          cb(items);
+        }
+      },
+      plugins: [
+        'contextmenu'
+      ]
     });
 
     // Add event to handle opening of files
@@ -135,6 +163,16 @@ this.main = this.main || {};
     }, function() {
       alert('Error saving file.');
     });
+  }
+
+  function onCreateFileClick(file) {
+    console.log(file);
+  }
+
+  function onSetRootFolderClick(file) {
+    localStorage.setItem(KEY_ROOT_ID, file.id);
+    $('#file-tree').jstree('destroy');
+    initFileTree();
   }
 
   exports.handleAuthClick = handleAuthClick;
