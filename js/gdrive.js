@@ -72,11 +72,11 @@ this.gdrive = this.gdrive || {};
     }, onFailure);
   }
 
-  function createFile(name, parent, callback) {
+  function createFile(name, parent, mimeType, callback) {
     gapi.client.drive.files.create({
       name: name,
       parents: [parent.id],
-      mimeType: MIMETYPE_MARKDOWN,
+      mimeType: mimeType,
       fields: 'id, name, mimeType',
       useContentAsIndexableText: true
     }).execute(function(file) {

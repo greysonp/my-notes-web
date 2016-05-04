@@ -73,18 +73,17 @@ this.main = this.main || {};
           // group all of the folder ones together, for instance.
           var items = {};
           if (file.mimeType == gdrive.MIMETYPE_FOLDER) {
-            items.create = {
+            items.createNote = {
               label: 'New Note',
               action: function() {
-                onCreateFileClick(file);
+                onCreateNoteClick(file);
               }
             };
-            items.createDir = {
+            items.createFolder = {
               label: 'New Folder',
               action: function() {
-                alert('Coming soon.');
-              },
-              _disabled: true
+                onCreateFolderClick(file);
+              }
             };
           }
           items.rename = {
@@ -201,9 +200,16 @@ this.main = this.main || {};
   // Event Listeners
   // ========================================================================
 
-  function onCreateFileClick(parent) {
-    var name = prompt('New file name') + '.md';
-    gdrive.createFile(name, parent, function(file) {
+  function onCreateNoteClick(parent) {
+    var name = prompt('New note name') + '.md';
+    gdrive.createFile(name, parent, gdrive.MIMETYPE_MARKDOWN, function(file) {
+      resetFileTree();
+    });
+  }
+
+  function onCreateFolderClick(parent) {
+    var name = prompt('New folder name');
+    gdrive.createFile(name, parent, gdrive.MIMETYPE_FOLDER, function(file) {
       resetFileTree();
     });
   }
