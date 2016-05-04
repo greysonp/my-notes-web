@@ -201,7 +201,10 @@ this.main = this.main || {};
   // ========================================================================
 
   function onCreateNoteClick(parent) {
-    var name = prompt('New note name') + '.md';
+    var name = prompt('New note name');
+    if (name.indexOf('.md') != name.length - 3) {
+      name += '.md';
+    }
     gdrive.createFile(name, parent, gdrive.MIMETYPE_MARKDOWN, function(file) {
       resetFileTree();
     });
@@ -220,9 +223,17 @@ this.main = this.main || {};
   }
 
   function onDeleteClick(file) {
-    gdrive.deleteFile(file, function(result) {
-      resetFileTree();
-    });
+    var message = '';
+    if (file.mimeType == gdrive.MIMETYPE_FOLDER) {
+      message = 'Are you sure you want to delete the \'' + file.name + '\' folder? All contents will also be deleted.';
+    } else {
+      message = 'Are you sure you want to delete ' + file.name + '?';
+    }
+    if (window.confirm(message)) {
+      gdrive.deleteFile(file, function(result) {
+        resetFileTree();
+      });
+    }
   }
 
   exports.handleAuthClick = handleAuthClick;
