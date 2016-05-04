@@ -13,12 +13,11 @@ this.gdrive = this.gdrive || {};
 
   var _accessToken = null;
 
-  function checkAuth(callback) {
-    gapi.auth.authorize(
-      {
+  function checkAuth(immediate, callback) {
+    gapi.auth.authorize({
         'client_id': CLIENT_ID,
         'scope': SCOPES.join(' '),
-        'immediate': true
+        'immediate': immediate
       }, function(authResult) {
         _accessToken = authResult.access_token;
         callback(authResult.error, authResult);

@@ -24,23 +24,25 @@ this.main = this.main || {};
   }
 
   function checkAuth() {
-    gdrive.checkAuth(function(err, result) {
-      var authorizeDiv = document.getElementById('authorize-div');
-      if (!err && result) {
-        // Hide auth UI, then load client library.
-        authorizeDiv.style.display = 'none';
-        gdrive.loadApi(initFileTree);
-      } else {
-        // Show auth UI, allowing the user to initiate authorization by
-        // clicking authorize button.
-        authorizeDiv.style.display = 'inline';
-      }
-    });
+    gdrive.checkAuth(true, handleAuthResult);
   }
 
   function handleAuthClick(event) {
-    checkAuth();
+    gdrive.checkAuth(false, handleAuthResult);
     return false;
+  }
+
+  function handleAuthResult(err, result) {
+    var authorizeDiv = document.getElementById('authorize-div');
+    if (!err && result) {
+      // Hide auth UI, then load client library.
+      authorizeDiv.style.display = 'none';
+      gdrive.loadApi(initFileTree);
+    } else {
+      // Show auth UI, allowing the user to initiate authorization by
+      // clicking authorize button.
+      authorizeDiv.style.display = 'inline';
+    }
   }
 
   function initFileTree() {
