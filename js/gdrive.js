@@ -92,12 +92,22 @@ this.gdrive = this.gdrive || {};
     });
   }
 
+  function renameFile(file, name, callback) {
+    gapi.client.drive.files.update({
+      fileId: file.id,
+      name: name
+    }).execute(function(result) {
+      callback(result);
+    })
+  }
+
   // Defining exports
   exports.checkAuth = checkAuth;
   exports.loadApi = loadApi;
   exports.listFiles = listFiles;
   exports.saveFile = saveFile;
   exports.deleteFile = deleteFile;
+  exports.renameFile = renameFile;
   exports.getFileMetadata = getFileMetadata;
   exports.getFileContents = getFileContents;
   exports.createFile = createFile;

@@ -89,9 +89,8 @@ this.main = this.main || {};
           items.rename = {
             label: 'Rename',
             action: function() {
-              alert('Coming soon.');
-            },
-            _disabled: true
+              onRenameClick(file);
+            }
           };
           items.delete = {
             label: 'Delete',
@@ -195,16 +194,21 @@ this.main = this.main || {};
     });
   }
 
+  function formatNoteName(name) {
+    if (name.indexOf('.md') != name.length - 3) {
+      name += '.md';
+    }
+    return name;
+  }
+
 
   // ========================================================================
   // Event Listeners
   // ========================================================================
 
   function onCreateNoteClick(parent) {
-    var name = prompt('New note name');
-    if (name.indexOf('.md') != name.length - 3) {
-      name += '.md';
-    }
+    var name = formatNoteName(prompt('New note name'));
+
     gdrive.createFile(name, parent, gdrive.MIMETYPE_MARKDOWN, function(file) {
       resetFileTree();
     });
@@ -234,6 +238,16 @@ this.main = this.main || {};
         resetFileTree();
       });
     }
+  }
+
+  function onRenameClick(file) {
+    var name = prompt('New name');
+    if (file.mimeType != gdrive.MIMETYPE_FOLDER) {
+      name = formatNoteName(name);
+    }
+    gdrive.renameFile(file, name, function(result) {
+      resetFileTree();
+    });
   }
 
   exports.handleAuthClick = handleAuthClick;
