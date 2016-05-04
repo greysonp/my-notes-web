@@ -73,33 +73,30 @@ this.main = this.main || {};
           // group all of the folder ones together, for instance.
           var items = {};
           if (file.mimeType == gdrive.MIMETYPE_FOLDER) {
-            items.create = {
+            items.createNote = {
               label: 'New Note',
               action: function() {
-                onCreateFileClick(file);
+                onCreateNoteClick(file);
               }
             };
-            items.createDir = {
+            items.createFolder = {
               label: 'New Folder',
               action: function() {
-                alert('Coming soon.');
-              },
-              _disabled: true
+                onCreateFolderClick(file);
+              }
             };
           }
           items.rename = {
             label: 'Rename',
             action: function() {
-              alert('Coming soon.');
-            },
-            _disabled: true
+              onRenameClick(file);
+            }
           };
           items.delete = {
             label: 'Delete',
             action: function() {
-              alert('Coming soon.');
-            },
-            _disabled: true
+              onDeleteClick(file);
+            }
           };
           if (file.mimeType == gdrive.MIMETYPE_FOLDER) {
             items.setRoot = {
@@ -126,6 +123,11 @@ this.main = this.main || {};
         showFile(file);
       }
     });
+  }
+
+  function resetFileTree() {
+    $('#file-tree').jstree('destroy');
+    initFileTree();
   }
 
   function listFiles(rootfile, callback) {
@@ -192,10 +194,29 @@ this.main = this.main || {};
     });
   }
 
-  function onCreateFileClick(parent) {
-    console.log(parent);
-    var name = prompt('New file name') + '.md';
-    gdrive.createFile(name, parent, function(file) {
+  function formatNoteName(name) {
+    if (name.indexOf('.md') != name.length - 3) {
+      name += '.md';
+    }
+    return name;
+  }
+
+
+  // ========================================================================
+  // Event Listeners
+  // ========================================================================
+
+  function onCreateNoteClick(parent) {
+    var name = formatNoteName(prompt('New note name'));
+
+    gdrive.createFile(name, parent, gdrive.MIMETYPE_MARKDOWN, function(file) {
+      resetFileTree();
+    });
+  }
+
+  function onCreateFolderClick(parent) {
+    var name = prompt('New folder name');
+    gdrive.createFile(name, parent, gdrive.MIMETYPE_FOLDER, function(file) {
       resetFileTree();
     });
   }
@@ -205,9 +226,28 @@ this.main = this.main || {};
     resetFileTree();
   }
 
-  function resetFileTree() {
-    $('#file-tree').jstree('destroy');
-    initFileTree();
+  function onDeleteClick(file) {
+    var message = '';
+    if (file.mimeType == gdrive.MIMETYPE_FOLDER) {
+      message = 'Are you sure you want to delete the \'' + file.name + '\' folder? All contents will also be deleted.';
+    } else {
+      message = 'Are you sure you want to delete ' + file.name + '?';
+    }
+    if (window.confirm(message)) {
+      gdrive.deleteFile(file, function(result) {
+        resetFileTree();
+      });
+    }
+  }
+
+  function onRenameClick(file) {
+    var name = prompt('New name');
+    if (file.mimeType != gdrive.MIMETYPE_FOLDER) {
+      name = formatNoteName(name);
+    }
+    gdrive.renameFile(file, name, function(result) {
+      resetFileTree();
+    });
   }
 
   exports.handleAuthClick = handleAuthClick;
