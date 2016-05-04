@@ -74,13 +74,21 @@ this.gdrive = this.gdrive || {};
 
   function createFile(name, parent, callback) {
     gapi.client.drive.files.create({
-        name: name,
-        parents: [parent.id],
-        mimeType: MIMETYPE_MARKDOWN,
-        fields: 'id, name, mimeType',
-        useContentAsIndexableText: true
+      name: name,
+      parents: [parent.id],
+      mimeType: MIMETYPE_MARKDOWN,
+      fields: 'id, name, mimeType',
+      useContentAsIndexableText: true
     }).execute(function(file) {
       callback(file.result);
+    });
+  }
+
+  function deleteFile(file, callback) {
+    gapi.client.drive.files.delete({
+      fileId: file.id
+    }).execute(function(result) {
+      callback(result);
     });
   }
 
@@ -89,6 +97,7 @@ this.gdrive = this.gdrive || {};
   exports.loadApi = loadApi;
   exports.listFiles = listFiles;
   exports.saveFile = saveFile;
+  exports.deleteFile = deleteFile;
   exports.getFileMetadata = getFileMetadata;
   exports.getFileContents = getFileContents;
   exports.createFile = createFile;

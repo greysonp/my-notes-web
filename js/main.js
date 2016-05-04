@@ -97,9 +97,8 @@ this.main = this.main || {};
           items.delete = {
             label: 'Delete',
             action: function() {
-              alert('Coming soon.');
-            },
-            _disabled: true
+              onDeleteClick(file);
+            }
           };
           if (file.mimeType == gdrive.MIMETYPE_FOLDER) {
             items.setRoot = {
@@ -126,6 +125,11 @@ this.main = this.main || {};
         showFile(file);
       }
     });
+  }
+
+  function resetFileTree() {
+    $('#file-tree').jstree('destroy');
+    initFileTree();
   }
 
   function listFiles(rootfile, callback) {
@@ -192,8 +196,12 @@ this.main = this.main || {};
     });
   }
 
+
+  // ========================================================================
+  // Event Listeners
+  // ========================================================================
+
   function onCreateFileClick(parent) {
-    console.log(parent);
     var name = prompt('New file name') + '.md';
     gdrive.createFile(name, parent, function(file) {
       resetFileTree();
@@ -205,9 +213,10 @@ this.main = this.main || {};
     resetFileTree();
   }
 
-  function resetFileTree() {
-    $('#file-tree').jstree('destroy');
-    initFileTree();
+  function onDeleteClick(file) {
+    gdrive.deleteFile(file, function(result) {
+      resetFileTree();
+    });
   }
 
   exports.handleAuthClick = handleAuthClick;
