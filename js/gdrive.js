@@ -11,6 +11,10 @@ this.gdrive = this.gdrive || {};
   var MIMETYPE_MARKDOWN = 'text/x-markdown';
   var MIMETYPE_TEXT = 'text/plain';
 
+  var STATUS_OK = 200;
+  var STATUS_INVALID_TOKEN = 401;
+  var STATUS_FORBIDDEN = 403;
+
   var _accessToken = null;
 
   function checkAuth(immediate, callback) {
@@ -35,12 +39,14 @@ this.gdrive = this.gdrive || {};
       'q': "'" + rootfile.id + "' in parents and trashed=false and (mimeType='" + MIMETYPE_FOLDER + "' or mimeType='" + MIMETYPE_MARKDOWN + "' or mimeType='" + MIMETYPE_TEXT + "')",
       'fields': "nextPageToken, files(id, name, mimeType)",
       'pageSize': 100
+    }).then(function(response) {
+      handleResponse(response, callback, function() {
+        listFiles(rootfile, callback)
+      });
     });
-
-    request.execute(callback);
   }
 
-  function saveFile(file, contents, onSuccess, onError) {
+  function saveFile(file, contents, callback) {
     $.ajax({
       url: 'https://www.googleapis.com/upload/drive/v3/files/' + file.id + '?uploadType=media',
       type: 'PATCH',
@@ -49,8 +55,16 @@ this.gdrive = this.gdrive || {};
       headers: {
         'Authorization': 'Bearer ' + _accessToken
       },
-      success: onSuccess,
-      error: onError
+      complete: function(jResponse) {
+        // Format the jquery response to look like the gdrive response
+        var response = {
+          result: jResponse.responseJSON,
+          status: jResponse.status
+        };
+        handleResponse(response, callback, function() {
+          saveFile(file, contents, callback);
+        });
+      }
     });
   }
 
@@ -58,18 +72,26 @@ this.gdrive = this.gdrive || {};
     var request = gapi.client.drive.files.get({
       fileId: fileId,
       fields: 'id, name, mimeType'
-    }).execute(callback);
+    }).then(function(response) {
+      handleResponse(response, callback, function() {
+        getFileMetadata(fileId, callback);
+      })
+    });
   }
 
-  function getFileContents(file, onSuccess, onFailure) {
+  function getFileContents(file, callback) {
     var request = gapi.client.drive.files.get({
       fileId: file.id,
       alt: 'media'
     }).then(function(response) {
-      // Need to read in the text as UTF-8, as default encoding for text/* mimeTypes is iso-8859-1
-      // For explaination on how this works, see http://ecmanaut.blogspot.co.uk/2006/07/encoding-decoding-utf8-in-javascript.html
-      onSuccess(decodeURIComponent(escape(response.body)));
-    }, onFailure);
+      handleResponse(response, function(result) {
+        // Need to read in the text as UTF-8, as default encoding for text/* mimeTypes is iso-8859-1
+        // For explaination on how this works, see http://ecmanaut.blogspot.co.uk/2006/07/encoding-decoding-utf8-in-javascript.html
+        callback(decodeURIComponent(escape(response.body)));
+      }, function() {
+        getFileContentsf(file, callback);
+      })
+    });
   }
 
   function createFile(name, parent, mimeType, callback) {
@@ -79,16 +101,20 @@ this.gdrive = this.gdrive || {};
       mimeType: mimeType,
       fields: 'id, name, mimeType',
       useContentAsIndexableText: true
-    }).execute(function(file) {
-      callback(file.result);
+    }).then(function(response) {
+      handleResponse(response, callback, function() {
+        createFile(name, parent, mimeType, callback);
+      });
     });
   }
 
   function deleteFile(file, callback) {
     gapi.client.drive.files.delete({
       fileId: file.id
-    }).execute(function(result) {
-      callback(result);
+    }).then(function(response) {
+      handleResponse(response, callback, function() {
+        deleteFile(file, callback);
+      });
     });
   }
 
@@ -96,9 +122,37 @@ this.gdrive = this.gdrive || {};
     gapi.client.drive.files.update({
       fileId: file.id,
       name: name
-    }).execute(function(result) {
-      callback(result);
+    }).then(function(response) {
+      handleResponse(response, callback, function() {
+        renameFile(file, name, callback);
+      });
     })
+  }
+
+  function handleResponse(response, onSuccess, onRetry) {
+    if (response.status == STATUS_OK) {
+      onSuccess(response.result);
+    } else if (response.status == STATUS_INVALID_TOKEN || response.status == STATUS_FORBIDDEN) {
+      // We had an auth error. Try getting a new token.
+      checkAuth(true, function(error, result) {
+        if (error) {
+          // Immediate (i.e. no pop-up) didn't work. They must have revoked authorization. Try the pop-up.
+          checkAuth(false, function(error, result) {
+            if (error) {
+              // That didn't work either! We're out of luck :(
+              alert('Had auth error, but couldn\'t fix it :( Try refreshing the page.');
+            } else {
+              onRetry()
+            }
+          });
+        } else {
+          onRetry();
+        }
+      });
+    } else {
+      console.error(response);
+      alert('Experienced an unhandled error. Check console.');
+    }
   }
 
   // Defining exports

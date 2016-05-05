@@ -156,15 +156,11 @@ this.main = this.main || {};
   }
 
   function showFile(file) {
-    console.log(file);
     clearInterval(_saveTimerId);
     gdrive.getFileContents(file, function(body) {
       _$editor.val(body);
       _oldEditorValue = body;
       loadEditor();
-    }, function(reason) {
-      console.error(reason);
-      alert('Error showing file, check console.');
     });
   }
 
