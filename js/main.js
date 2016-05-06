@@ -191,7 +191,7 @@ this.main = this.main || {};
   }
 
   function formatNoteName(name) {
-    if (name.indexOf('.md') != name.length - 3) {
+    if (!name.endsWith('.md')) {
       name += '.md';
     }
     return name;

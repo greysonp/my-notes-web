@@ -19,9 +19,9 @@ this.gdrive = this.gdrive || {};
 
   function checkAuth(immediate, callback) {
     gapi.auth.authorize({
-        'client_id': CLIENT_ID,
-        'scope': SCOPES.join(' '),
-        'immediate': immediate
+        client_id: CLIENT_ID,
+        scope: SCOPES.join(' '),
+        immediate: immediate
       }, function(authResult) {
         _accessToken = authResult.access_token;
         callback(authResult.error, authResult);
@@ -34,14 +34,16 @@ this.gdrive = this.gdrive || {};
 
   function listFiles(rootfile, callback) {
     var request = gapi.client.drive.files.list({
-      'corpus': 'user',
-      'orderBy': 'folder,name',
-      'q': "'" + rootfile.id + "' in parents and trashed=false and (mimeType='" + MIMETYPE_FOLDER + "' or mimeType='" + MIMETYPE_MARKDOWN + "' or mimeType='" + MIMETYPE_TEXT + "')",
-      'fields': "nextPageToken, files(id, name, mimeType)",
-      'pageSize': 100
+      corpus: 'user',
+      orderBy: 'folder,name',
+      q: "'" + rootfile.id + "' in parents and trashed=false and (mimeType='" + MIMETYPE_FOLDER + "' or mimeType='" + MIMETYPE_MARKDOWN + "' or mimeType='" + MIMETYPE_TEXT + "')",
+      fields: "nextPageToken, files(id, name, mimeType)",
+      pageSize: 200
     }).then(function(response) {
-      handleResponse(response, callback, function() {
-        listFiles(rootfile, callback)
+      callback(response.result);
+    }, function(reason) {
+      handleError(reason, function() {
+        listFiles(rootfile, callback);
       });
     });
   }
@@ -55,13 +57,15 @@ this.gdrive = this.gdrive || {};
       headers: {
         'Authorization': 'Bearer ' + _accessToken
       },
-      complete: function(jResponse) {
+      success: callback,
+      error: function(jReason) {
         // Format the jquery response to look like the gdrive response
-        var response = {
-          result: jResponse.responseJSON,
-          status: jResponse.status
+        var reason = {
+          result: jReason.responseJSON,
+          status: jReason.status,
+          jReason: jReason
         };
-        handleResponse(response, callback, function() {
+        handleResponse(reason, function() {
           saveFile(file, contents, callback);
         });
       }
@@ -73,9 +77,11 @@ this.gdrive = this.gdrive || {};
       fileId: fileId,
       fields: 'id, name, mimeType'
     }).then(function(response) {
-      handleResponse(response, callback, function() {
+      callback(response.result);
+    }, function(reason) {
+      handleError(reason, function() {
         getFileMetadata(fileId, callback);
-      })
+      });
     });
   }
 
@@ -84,13 +90,13 @@ this.gdrive = this.gdrive || {};
       fileId: file.id,
       alt: 'media'
     }).then(function(response) {
-      handleResponse(response, function(result) {
-        // Need to read in the text as UTF-8, as default encoding for text/* mimeTypes is iso-8859-1
-        // For explaination on how this works, see http://ecmanaut.blogspot.co.uk/2006/07/encoding-decoding-utf8-in-javascript.html
-        callback(decodeURIComponent(escape(response.body)));
-      }, function() {
-        getFileContentsf(file, callback);
-      })
+      // Need to read in the text as UTF-8, as default encoding for text/* mimeTypes is iso-8859-1
+      // For explaination on how this works, see http://ecmanaut.blogspot.co.uk/2006/07/encoding-decoding-utf8-in-javascript.html
+      callback(decodeURIComponent(escape(response.body)));
+    }, function(reason) {
+      handleError(reason, function() {
+        getFileContents(file, callback);
+      });
     });
   }
 
@@ -102,7 +108,9 @@ this.gdrive = this.gdrive || {};
       fields: 'id, name, mimeType',
       useContentAsIndexableText: true
     }).then(function(response) {
-      handleResponse(response, callback, function() {
+      callback(response.result);
+    }, function(reason) {
+      handleError(reason, function() {
         createFile(name, parent, mimeType, callback);
       });
     });
@@ -112,9 +120,11 @@ this.gdrive = this.gdrive || {};
     gapi.client.drive.files.delete({
       fileId: file.id
     }).then(function(response) {
-      handleResponse(response, callback, function() {
+      callback(response.result);
+    }, function(reason) {
+      handleError(reason, function() {
         deleteFile(file, callback);
-      });
+      })
     });
   }
 
@@ -123,23 +133,27 @@ this.gdrive = this.gdrive || {};
       fileId: file.id,
       name: name
     }).then(function(response) {
-      handleResponse(response, callback, function() {
+      callback(response.result);
+    }, function(reason) {
+      handleError(response, function() {
         renameFile(file, name, callback);
       });
-    })
+    });
   }
 
-  function handleResponse(response, onSuccess, onRetry) {
-    if (response.status == STATUS_OK) {
-      onSuccess(response.result);
-    } else if (response.status == STATUS_INVALID_TOKEN || response.status == STATUS_FORBIDDEN) {
+  function handleError(reason, onRetry) {
+    console.warn('Handling error with status: ' + reason.status);
+    if (reason.status == STATUS_INVALID_TOKEN || reason.status == STATUS_FORBIDDEN) {
       // We had an auth error. Try getting a new token.
+      console.warn('Trying to re-auth with immediate=true');
       checkAuth(true, function(error, result) {
         if (error) {
           // Immediate (i.e. no pop-up) didn't work. They must have revoked authorization. Try the pop-up.
+          console.warn('Re-auth failed, trying again with immediate=false');
           checkAuth(false, function(error, result) {
             if (error) {
               // That didn't work either! We're out of luck :(
+              console.error(error);
               alert('Had auth error, but couldn\'t fix it :( Try refreshing the page.');
             } else {
               onRetry()
@@ -150,7 +164,7 @@ this.gdrive = this.gdrive || {};
         }
       });
     } else {
-      console.error(response);
+      console.error(reason);
       alert('Experienced an unhandled error. Check console.');
     }
   }
