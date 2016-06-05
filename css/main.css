@@ -1,9 +1,13 @@
 html, body {
   padding: 0;
   margin: 0;
-  font-family: 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
+  font-family: 'Helvetica Neue', 'Helvetica', sans-serif;
   height: 100%;
   overflow-y: hidden;
+}
+
+.CodeMirror {
+  font-family: 'Source Code Pro', monospace !important;
 }
 
 .folder {
