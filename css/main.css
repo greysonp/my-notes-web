@@ -1,7 +1,7 @@
 html, body {
   padding: 0;
   margin: 0;
-  font-family: 'Source Code Pro', monospace;
+  font-family: 'Roboto Mono', monospace;
   height: 100%;
   overflow-y: hidden;
 }
@@ -17,14 +17,16 @@ html, body {
 #file-tree {
   width: 300px;
   height: 100%;
-  border-right: 2px solid black;
   overflow-x: scroll;
   overflow-y: auto;
   padding-left: 10px;
+  box-shadow: 0 2px 5px 0 rgba(0,0,0,0.16),0 2px 10px 0 rgba(0,0,0,0.12);
+  z-index: 200;
+  background-color: #fff;
 }
 
-#file-tree, .editor-preview-side {
-  font-family: 'Helvetica Neue', 'Helvetica', sans-serif;
+#file-tree, .editor-preview, .editor-preview-side {
+  font-family: 'Roboto', sans-serif;
 }
 
 #editor-container {
@@ -33,7 +35,99 @@ html, body {
   word-break: break-all;
 }
 
+ul {
+  padding-left: 40px;
+}
+
+ul li {
+  list-style-type: disc;
+}
+
 pre {
   white-space: pre-wrap;
   word-break: break-all;
+}
+
+.editor-toolbar {
+  background-color: #fff !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: 0 2px 5px 0 rgba(0,0,0,0.16),0 2px 10px 0 rgba(0,0,0,0.12);
+  z-index: 100;
+}
+
+.CodeMirror {
+  background-color: #fff !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: 0 5px 5px 0 rgba(0,0,0,0.16),0 2px 10px 0 rgba(0,0,0,0.12);
+  z-index: 50;
+}
+
+.ic {
+  border: none !important;
+  border-radius: 0 !important;
+  outline: none !important;
+  margin: 0 2px !important;
+}
+
+.ic:hover {
+  border: none !important;
+  border-radius: 0 !important;
+  outline: none !important;
+}
+
+.ic.active {
+  background-color: #ddd !important;
+  border: none !important;
+  border-radius: 0 !important;
+  outline: none !important;
+}
+
+.ic-format-bold:before {
+  content: 'format_bold';
+}
+
+.ic-format-italic:before {
+  content: 'format_italic';
+}
+
+.ic-format-quote:before {
+  content: 'format_quote';
+}
+
+.ic-format-list-bulleted:before {
+  content: 'format_list_bulleted';
+}
+
+.ic-format-list-numbered:before {
+  content: 'format_list_numbered';
+}
+
+.ic-flip:before {
+  content: 'flip';
+}
+
+.ic-fullscreen:before {
+  content: 'fullscreen';
+}
+
+.ic-help:before {
+  content: 'help';
+}
+
+.ic-remove-red-eye:before {
+  content: 'remove_red_eye';
+}
+
+.ic-insert-link:before {
+  content: 'insert_link';
+}
+
+.ic-image:before {
+  content: 'image';
+}
+
+.ic-title:before {
+  content: 'title';
 }
