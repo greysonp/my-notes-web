@@ -173,6 +173,7 @@ this.main = this.main || {};
       forceSync: true,
       indentWithTabs: false,
       autofocus: true,
+      autoDownloadFontAwesome: false,
       toolbar: [{
         name: 'bold',
         action: SimpleMDE.toggleBold,

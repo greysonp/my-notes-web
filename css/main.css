@@ -17,10 +17,12 @@ html, body {
 #file-tree {
   width: 300px;
   height: 100%;
-  border-right: 2px solid black;
   overflow-x: scroll;
   overflow-y: auto;
   padding-left: 10px;
+  box-shadow: 0 2px 5px 0 rgba(0,0,0,0.16),0 2px 10px 0 rgba(0,0,0,0.12);
+  z-index: 200;
+  background-color: #fff;
 }
 
 #file-tree, .editor-preview, .editor-preview-side {
@@ -36,6 +38,22 @@ html, body {
 pre {
   white-space: pre-wrap;
   word-break: break-all;
+}
+
+.editor-toolbar {
+  background-color: #fff !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: 0 2px 5px 0 rgba(0,0,0,0.16),0 2px 10px 0 rgba(0,0,0,0.12);
+  z-index: 100;
+}
+
+.CodeMirror {
+  background-color: #fff !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: 0 5px 5px 0 rgba(0,0,0,0.16),0 2px 10px 0 rgba(0,0,0,0.12);
+  z-index: 50;
 }
 
 .ic {
