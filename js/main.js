@@ -172,7 +172,83 @@ this.main = this.main || {};
       spellChecker: false,
       forceSync: true,
       indentWithTabs: false,
-      autofocus: true
+      autofocus: true,
+      toolbar: [{
+        name: 'bold',
+        action: SimpleMDE.toggleBold,
+        className: 'material-icons ic-format-bold',
+        title: 'Bold'
+      },
+      {
+        name: 'italic',
+        action: SimpleMDE.toggleItalic,
+        className: 'material-icons ic-format-italic',
+        title: 'Italic'
+      },
+      {
+        name: 'heading',
+        action: SimpleMDE.toggleHeadingSmaller,
+        className: 'material-icons ic-title',
+        title: 'Heading'
+      },
+      '|',
+      {
+        name: 'quote',
+        action: SimpleMDE.toggleBlockquote,
+        className: 'material-icons ic-format-quote',
+        title: 'Quote'
+      },
+      {
+        name: 'unordered-list',
+        action: SimpleMDE.toggleUnorderedList,
+        className: 'material-icons ic-format-list-bulleted',
+        title: 'Generic List'
+      },
+      {
+        name: 'ordered-list',
+        action: SimpleMDE.toggleOrderedList,
+        className: 'material-icons ic-format-list-numbered',
+        title: 'Ordered List'
+      },
+      '|',
+      {
+        name: 'link',
+        action: SimpleMDE.drawLink,
+        className: 'material-icons ic-insert-link',
+        title: 'Create Link'
+      },
+      {
+        name: 'image',
+        action: SimpleMDE.drawImage,
+        className: 'material-icons ic-image',
+        title: 'Insert Image'
+      },
+      '|',
+      {
+        name: 'preview',
+        action: SimpleMDE.togglePreview,
+        className: 'material-icons ic-remove-red-eye no-disable',
+        title: 'Toggle Preview'
+      },
+      {
+        name: 'side-by-side',
+        action: SimpleMDE.toggleSideBySide,
+        className: 'material-icons ic-flip no-disable',
+        title: 'Toggle Side-by-Side'
+      },
+      {
+        name: 'fullscreen',
+        action: SimpleMDE.toggleFullScreen,
+        className: 'material-icons ic-fullscreen no-disable no-mobile',
+        title: 'Toggle Fullscreen'
+      },
+      '|',
+      {
+        name: 'guide',
+        action: function() { window.open('https://simplemde.com/markdown-guide'); },
+        className: 'material-icons ic-help',
+        title: 'Toggle Fullscreen (F11)'
+      }]
     });
     _saveTimerId = setInterval(function() {
       saveFile(_activeFile, _$editor.val());

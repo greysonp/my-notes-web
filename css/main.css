@@ -23,7 +23,7 @@ html, body {
   padding-left: 10px;
 }
 
-#file-tree, .editor-preview-side {
+#file-tree, .editor-preview, .editor-preview-side {
   font-family: 'Helvetica Neue', 'Helvetica', sans-serif;
 }
 
@@ -36,4 +36,52 @@ html, body {
 pre {
   white-space: pre-wrap;
   word-break: break-all;
+}
+
+.ic-format-bold:before {
+  content: 'format_bold';
+}
+
+.ic-format-italic:before {
+  content: 'format_italic';
+}
+
+.ic-format-quote:before {
+  content: 'format_quote';
+}
+
+.ic-format-list-bulleted:before {
+  content: 'format_list_bulleted';
+}
+
+.ic-format-list-numbered:before {
+  content: 'format_list_numbered';
+}
+
+.ic-flip:before {
+  content: 'flip';
+}
+
+.ic-fullscreen:before {
+  content: 'fullscreen';
+}
+
+.ic-help:before {
+  content: 'help';
+}
+
+.ic-remove-red-eye:before {
+  content: 'remove_red_eye';
+}
+
+.ic-insert-link:before {
+  content: 'insert_link';
+}
+
+.ic-image:before {
+  content: 'image';
+}
+
+.ic-title:before {
+  content: 'title';
 }
