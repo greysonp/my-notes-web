@@ -112,7 +112,8 @@ this.main = this.main || {};
         }
       },
       plugins: [
-        'contextmenu'
+        'contextmenu',
+        'wholerow'
       ]
     });
 
