@@ -48,12 +48,17 @@ pre {
   word-break: break-all;
 }
 
-.editor-toolbar {
-  background-color: #fff !important;
+.editor-toolbar, .editor-toolbar.fullscreen {
+  background-color: #e53935 !important;
   border: none !important;
   border-radius: 0 !important;
   box-shadow: 0 2px 5px 0 rgba(0,0,0,0.16),0 2px 10px 0 rgba(0,0,0,0.12);
   z-index: 100;
+  opacity: 1 !important;
+}
+
+.editor-toolbar.fullscreen:after, .editor-toolbar.fullscreen:before {
+  width: 0 !important;
 }
 
 .CodeMirror {
@@ -75,17 +80,27 @@ pre {
   margin: 0 2px !important;
 }
 
+.ic, .editor-toolbar a {
+  color: rgba(255, 255, 255, 1) !important;
+}
+
 .ic:hover {
+  background-color: #e57373 !important;
   border: none !important;
   border-radius: 0 !important;
   outline: none !important;
 }
 
 .ic.active {
-  background-color: #ddd !important;
+  background-color: #e57373 !important;
   border: none !important;
   border-radius: 0 !important;
   outline: none !important;
+}
+
+.editor-toolbar.disabled-for-preview a:not(.no-disable) {
+  background: none !important;
+  opacity: 0.5;
 }
 
 .ic-format-bold:before {
