@@ -64,6 +64,10 @@ pre {
   z-index: 50;
 }
 
+.faded {
+  opacity: 0.7;
+}
+
 .ic {
   border: none !important;
   border-radius: 0 !important;
@@ -130,4 +134,16 @@ pre {
 
 .ic-title:before {
   content: 'title';
+}
+
+.ic-folder:before {
+  content: 'folder';
+}
+
+.ic-folder-open:before {
+  content: 'folder_open';
+}
+
+.ic-insert-drive-file:before {
+  content: 'insert_drive_file';
 }
