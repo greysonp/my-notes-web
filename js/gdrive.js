@@ -49,26 +49,22 @@ this.gdrive = this.gdrive || {};
   }
 
   function saveFile(file, contents, callback) {
-    $.ajax({
+    network.request({
       url: 'https://www.googleapis.com/upload/drive/v3/files/' + file.id + '?uploadType=media',
-      type: 'PATCH',
+      method: 'PATCH',
       contentType: MIMETYPE_MARKDOWN,
       data: contents,
       headers: {
         'Authorization': 'Bearer ' + _accessToken
-      },
-      success: callback,
-      error: function(jReason) {
-        // Format the jquery response to look like the gdrive response
-        var reason = {
-          result: jReason.responseJSON,
-          status: jReason.status,
-          jReason: jReason
-        };
-        handleResponse(reason, function() {
+      }
+    }, function(err, response) {
+      if (err) {
+        // Format the response to look like the gdrive response
+        return handleError({ xhr: xhr, status: xhr.status }, function() {
           saveFile(file, contents, callback);
         });
       }
+      callback();
     });
   }
 
@@ -154,7 +150,7 @@ this.gdrive = this.gdrive || {};
             if (error) {
               // That didn't work either! We're out of luck :(
               console.error(error);
-              alert('Had auth error, but couldn\'t fix it :( Try refreshing the page.');
+              alert('Had auth error, but couldn\'t fix it :( Backup your work, then try refreshing the page.');
             } else {
               onRetry()
             }
@@ -169,7 +165,7 @@ this.gdrive = this.gdrive || {};
     }
   }
 
-  // Defining exports
+  // Exports
   exports.checkAuth = checkAuth;
   exports.loadApi = loadApi;
   exports.listFiles = listFiles;
