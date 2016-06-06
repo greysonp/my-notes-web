@@ -38,6 +38,26 @@ pre {
   word-break: break-all;
 }
 
+.ic {
+  border: none !important;
+  border-radius: 0 !important;
+  outline: none !important;
+  margin: 0 2px !important;
+}
+
+.ic:hover {
+  border: none !important;
+  border-radius: 0 !important;
+  outline: none !important;
+}
+
+.ic.active {
+  background-color: #ddd !important;
+  border: none !important;
+  border-radius: 0 !important;
+  outline: none !important;
+}
+
 .ic-format-bold:before {
   content: 'format_bold';
 }

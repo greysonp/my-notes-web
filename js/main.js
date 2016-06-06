@@ -176,77 +176,77 @@ this.main = this.main || {};
       toolbar: [{
         name: 'bold',
         action: SimpleMDE.toggleBold,
-        className: 'material-icons ic-format-bold',
+        className: 'material-icons ic ic-format-bold waves-effect',
         title: 'Bold'
       },
       {
         name: 'italic',
         action: SimpleMDE.toggleItalic,
-        className: 'material-icons ic-format-italic',
+        className: 'material-icons ic ic-format-italic waves-effect',
         title: 'Italic'
       },
       {
         name: 'heading',
         action: SimpleMDE.toggleHeadingSmaller,
-        className: 'material-icons ic-title',
+        className: 'material-icons ic ic-title waves-effect',
         title: 'Heading'
       },
       '|',
       {
         name: 'quote',
         action: SimpleMDE.toggleBlockquote,
-        className: 'material-icons ic-format-quote',
+        className: 'material-icons ic ic-format-quote waves-effect',
         title: 'Quote'
       },
       {
         name: 'unordered-list',
         action: SimpleMDE.toggleUnorderedList,
-        className: 'material-icons ic-format-list-bulleted',
+        className: 'material-icons ic ic-format-list-bulleted waves-effect',
         title: 'Generic List'
       },
       {
         name: 'ordered-list',
         action: SimpleMDE.toggleOrderedList,
-        className: 'material-icons ic-format-list-numbered',
+        className: 'material-icons ic ic-format-list-numbered waves-effect',
         title: 'Ordered List'
       },
       '|',
       {
         name: 'link',
         action: SimpleMDE.drawLink,
-        className: 'material-icons ic-insert-link',
+        className: 'material-icons ic ic-insert-link waves-effect',
         title: 'Create Link'
       },
       {
         name: 'image',
         action: SimpleMDE.drawImage,
-        className: 'material-icons ic-image',
+        className: 'material-icons ic ic-image waves-effect',
         title: 'Insert Image'
       },
       '|',
       {
         name: 'preview',
         action: SimpleMDE.togglePreview,
-        className: 'material-icons ic-remove-red-eye no-disable',
+        className: 'material-icons ic ic-remove-red-eye no-disable waves-effect',
         title: 'Toggle Preview'
       },
       {
         name: 'side-by-side',
         action: SimpleMDE.toggleSideBySide,
-        className: 'material-icons ic-flip no-disable',
+        className: 'material-icons ic ic-flip no-disable waves-effect',
         title: 'Toggle Side-by-Side'
       },
       {
         name: 'fullscreen',
         action: SimpleMDE.toggleFullScreen,
-        className: 'material-icons ic-fullscreen no-disable no-mobile',
+        className: 'material-icons ic ic-fullscreen no-disable no-mobile waves-effect',
         title: 'Toggle Fullscreen'
       },
       '|',
       {
         name: 'guide',
         action: function() { window.open('https://simplemde.com/markdown-guide'); },
-        className: 'material-icons ic-help',
+        className: 'material-icons ic-help waves-effect',
         title: 'Toggle Fullscreen (F11)'
       }]
     });
