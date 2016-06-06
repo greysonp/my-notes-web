@@ -233,13 +233,19 @@ this.main = this.main || {};
       },
       {
         name: 'side-by-side',
-        action: SimpleMDE.toggleSideBySide,
+        action: function(e) {
+          SimpleMDE.toggleSideBySide(e);
+          updateFileTreeZ();
+        },
         className: 'material-icons ic ic-flip no-disable waves-effect',
         title: 'Toggle Side-by-Side'
       },
       {
         name: 'fullscreen',
-        action: SimpleMDE.toggleFullScreen,
+        action: function(e) {
+          SimpleMDE.toggleFullScreen(e);
+          updateFileTreeZ();
+        },
         className: 'material-icons ic ic-fullscreen no-disable no-mobile waves-effect',
         title: 'Toggle Fullscreen'
       },
@@ -272,6 +278,15 @@ this.main = this.main || {};
       name += '.md';
     }
     return name;
+  }
+
+  function isFullscreen() {
+    return _simplemde.isSideBySideActive() || _simplemde.isFullscreenActive() || document.querySelector('.CodeMirror-sided') != null;
+  }
+
+  function updateFileTreeZ() {
+    var fileTree = document.querySelector('#file-tree');
+    fileTree.style.zIndex = isFullscreen() ? -1 : 200;
   }
 
 
