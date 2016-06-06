@@ -264,7 +264,7 @@ this.main = this.main || {};
       {
         name: 'guide',
         action: function() { window.open('https://simplemde.com/markdown-guide'); },
-        className: 'material-icons ic-help waves-effect',
+        className: 'material-icons ic ic-help waves-effect',
         title: 'Toggle Fullscreen (F11)'
       }]
     });
