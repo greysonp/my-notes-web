@@ -56,7 +56,8 @@ this.main = this.main || {};
               _rootFile = response;
               _rootFile.state = {
                 opened: true
-              }
+              },
+              _rootFile.icon = 'material-icons ic-folder-open faded'
               addToFiles(_rootFile);
               listFiles(_rootFile, cb);
             });
@@ -116,12 +117,19 @@ this.main = this.main || {};
     });
 
     // Add event to handle opening of files
-    $('#file-tree').on('select_node.jstree', function (e, data) {
+    $('#file-tree').on('select_node.jstree', function(e, data) {
       var file = _files[data.node.id];
       if (file.mimeType != gdrive.MIMETYPE_FOLDER) {
         _activeFile = file;
         showFile(file);
       }
+    });
+
+    $('#file-tree').on('open_node.jstree', function(e, data) {
+      $('#file-tree').jstree(true).set_icon(data.node.id, 'material-icons ic-folder-open faded');
+    });
+    $('#file-tree').on('close_node.jstree', function(e, data) {
+      $('#file-tree').jstree(true).set_icon(data.node.id, 'material-icons ic-folder faded');
     });
   }
 
@@ -138,7 +146,9 @@ this.main = this.main || {};
           var file = files[i];
           file.children = (file.mimeType == gdrive.MIMETYPE_FOLDER);
           if (file.mimeType != gdrive.MIMETYPE_FOLDER) {
-            file.icon = 'jstree-file';
+            file.icon = 'material-icons ic-insert-drive-file faded';
+          } else {
+            file.icon = 'material-icons ic-folder faded'
           }
           addToFiles(file);
         }
