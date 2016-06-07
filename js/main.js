@@ -185,6 +185,15 @@ this.main = this.main || {};
       indentWithTabs: false,
       autofocus: true,
       autoDownloadFontAwesome: false,
+      status: [{
+        className: 'save-status',
+        defaultValue: function(el) {
+          el.innerText = '';
+        },
+        onUpdate: function(el) {
+          el.innerText = 'Not saved.';
+        }
+      }, 'lines', 'words', 'cursor'],
       toolbar: [{
         name: 'bold',
         action: SimpleMDE.toggleBold,
@@ -277,9 +286,11 @@ this.main = this.main || {};
     if (contents == _oldEditorValue) return;
     _oldEditorValue = contents;
 
+    updateSaveStatus('Saving...');
     gdrive.saveFile(file, contents, function(data) {
-      console.log('Saved file.');
+      updateSaveStatus('Last saved at ' + makeTimestamp());
     }, function() {
+      updateSaveStatus('Error during saving. Backup and refresh.');
       alert('Error saving file.');
     });
   }
@@ -298,6 +309,24 @@ this.main = this.main || {};
   function updateFileTreeZ() {
     var fileTree = document.querySelector('#file-tree');
     fileTree.style.zIndex = isFullscreen() ? -1 : 200;
+  }
+
+  function updateSaveStatus(text) {
+    document.querySelector('.save-status').innerText = text;
+  }
+
+  function makeTimestamp() {
+    var now = new Date();
+    var time = [ now.getHours(), now.getMinutes(), now.getSeconds() ];
+    var suffix = ( time[0] < 12 ) ? 'am' : 'pm';
+    time[0] = ( time[0] < 12 ) ? time[0] : time[0] - 12;
+    time[0] = time[0] || 12;
+    for ( var i = 1; i < 3; i++ ) {
+      if ( time[i] < 10 ) {
+        time[i] = "0" + time[i];
+      }
+    }
+    return time.join(':') + ' ' + suffix;
   }
 
 
