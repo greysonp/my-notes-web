@@ -25,6 +25,10 @@ html, body {
   background-color: #fff;
 }
 
+.jstree-contextmenu {
+  z-index: 1000 !important;
+}
+
 #file-tree, .editor-preview, .editor-preview-side {
   font-family: 'Roboto', sans-serif;
 }
