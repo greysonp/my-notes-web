@@ -60,7 +60,7 @@ this.gdrive = this.gdrive || {};
     }, function(err, response) {
       if (err) {
         // Format the response to look like the gdrive response
-        return handleError({ xhr: xhr, status: xhr.status }, function() {
+        return handleError({ xhr: err, status: err.status }, function() {
           saveFile(file, contents, callback);
         });
       }
