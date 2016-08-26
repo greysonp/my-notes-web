@@ -1,2 +1,2 @@
-# my-notes-web
+# My Notes
 A markdown editor for notes already in the cloud.
